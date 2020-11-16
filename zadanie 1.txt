@@ -1,0 +1,93 @@
+CREATE TABLE postac(id_postaci INT PRIMARY KEY AUTO_INCREMENT, nazwa varchar(40) 
+rodzaj ENUM('wiking','ptak','kobieta'), data_ur date, wiek INT UNSIGNED);
+
+INSERT INTO postac VALUES
+('', 'Bjorn', 'wiking','1011-07-11', '44'),
+('', 'Drozd', 'ptak', '1026-06-06', '3'),
+('', 'Tesciowa', 'kobieta', '1000-06-05', '66');
+
+UPDATE postac SET wiek=88 WHERE id_postaci=3;
+
+
+CREATE TABLE walizka(id_walizka INT PRIMARY KEY AUTO_INCREMENT, pojemnosc INT
+UNSIGNED, kolor ENUM ('rozowy', 'czerwony', 'teczowy', 'zolty'), id_wlasciciela
+INT)
+
+ALTER TABLE walizka ADD FOREIGN KEY (id_wlasciciela) REFERENCES postac(id_postaci)
+ON DELETE CASCADE ON UPDATE CASCADE; 
+
+ALTER TABLE walizka ALTER kolor SET DEFAULT 'rozowy'; 
+
+INSERT INTO walizka VALUES 
+('', '10', 'czerowony', '1'),
+('', '20', 'zolty', '3');
+
+CREATE TABLE izba(adres_budynku VARCHAR(30), nazwa_izby VARCHAR(20), CONSTRAINT 
+PRIMARY KEY id_izby (adres_budynku, nazwa_izby), metraz INT UNSIGNED, wlasciciel
+INT, FOREIGN KEY(wlasciciel) REFERENCES postac(id_postaci) ON DELETE SET NULL);
+
+ALTER TABLE izba ADD kolor_izby VARCHAR(20) DEFAULT 'czarny' AFTER metraz;
+
+INSERT INTO izba VALUES('Stalowa 11', 'spizarnia', '14', 'szary', '1');
+
+CREATE TABLE przetwory(id_przetworu PRIMARY KEY, rok_produkcji YEAR DEFAULT '1920',
+id_wykonawcy INT, FOREIGN KEY (id_wykonawcy) REFERENCES postac(id_postaci), 
+zawartosc VARCHAR(20), dodatek VARCHAR(20) DEFAULT 'papryczka chilli', 
+id_konsumenta INT, FOREIGN KEY (id_kosumenta) REFERENCES postac(id_postaci));
+
+INSERT INTO przetwory('1', '1922', '1', 'bigos', 'DEFAULT', '3');
+
+INSERT INTO postac VALUES
+('4', 'Floki', 'wiking', '1012-03-01', '43'),
+('5', 'Rollo', 'wiking', '1005-02-03', '45'),
+('6', 'Ivar', 'wiking', '1026-02-05', '28'),
+('7', 'Torvi', 'wiking', '1032-02-05', '24'),
+('8', 'Lagertha', 'wiking', '1010-02-08', '36');
+
+CREATE TABLE statek(nazwa_statku PRIMARY KEY, rodzaj_statku ENUM('drakkar', 
+'knara', 'lodz'), data_wodowania DATE, max_ladownosc INT UNSIGNED);
+
+INSERT INTO statek VALUES
+('Grot', 'knara', '1032-02-01', '60'),
+('Upior', 'drakkar', '1022-03-05', '72');
+
+ALTER TABLE postac ADD funkcja VARCHAR(20); 
+
+UPDATE postac SET funkcja='kapitan' WHERE id_postaci=1;
+
+ALTER TABLE postac ADD statek_postac VARCHAR(25); 
+
+ALTER TABLE postac ADD FOREIGN KEY (statek_postac) REFERENCES statek(nazwa_statku);
+
+UPDATE postac SET statek_postac='Upior' WHERE id_postaci=1;
+UPDATE postac SET statek_postac='Upior' WHERE id_postaci=2;
+UPDATE postac SET statek_postac='Upior' WHERE id_postaci=4;
+UPDATE postac SET statek_postac='Upior' WHERE id_postaci=5;
+UPDATE postac SET statek_postac='Upior' WHERE id_postaci=6;
+UPDATE postac SET statek_postac='Upior' WHERE id_postaci=7;
+UPDATE postac SET statek_postac='Upior' WHERE id_postaci=8;
+
+ALTER TABLE izba DROP COLUMN spizarnia; 
+
+DROP TABLE izba; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
