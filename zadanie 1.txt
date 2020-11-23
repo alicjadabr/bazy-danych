@@ -60,12 +60,12 @@ ALTER TABLE postac ADD statek_postac VARCHAR(25);
 ALTER TABLE postac ADD FOREIGN KEY (statek_postac) REFERENCES statek(nazwa_statku);
 
 UPDATE postac SET statek_postac='Upior' WHERE id_postaci=1;
-UPDATE postac SET statek_postac='Upior' WHERE id_postaci=2;
-UPDATE postac SET statek_postac='Upior' WHERE id_postaci=4;
-UPDATE postac SET statek_postac='Upior' WHERE id_postaci=5;
+UPDATE postac SET statek_postac='Grot' WHERE id_postaci=2;
+UPDATE postac SET statek_postac='Grot' WHERE id_postaci=4;
+UPDATE postac SET statek_postac='Grot' WHERE id_postaci=5;
 UPDATE postac SET statek_postac='Upior' WHERE id_postaci=6;
 UPDATE postac SET statek_postac='Upior' WHERE id_postaci=7;
-UPDATE postac SET statek_postac='Upior' WHERE id_postaci=8;
+UPDATE postac SET statek_postac='Grot' WHERE id_postaci=8;
 
 ALTER TABLE izba DROP COLUMN spizarnia; 
 
