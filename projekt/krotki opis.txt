@@ -1,2 +1,0 @@
-Przygotowana przeze mnie projekt ma za zadanie przechowywać i porządkować dane na temat  małego schroniska, działającego na terenie Polski.
-Gromadzone dane to m.in: informacje o bezdomnych zwierzętach, o adopcjach i stanie zaopatrzenia w schronisku. 
