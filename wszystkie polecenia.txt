@@ -1,0 +1,286 @@
+//                  3. Komendy (utworzone tabele oraz dodane rekordy; klucze obce)
+
+
+// Spis zwierzaków, podstawowe dane o nich
+
+CREATE TABLE zwierzeta(id_zwierzaka INT PRIMARY KEY, rodzaj ENUM('pies', 'kot'), imie VARCHAR(50), plec ENUM('samiec', 'samica'), wiek INT, waga INT, boks VARCHAR(50), nr_chipa VARCHAR(15), opiekun INT, id_karmy INT);
+
+
+// Informacje o adoptujących zwierzęta ze schroniska
+
+CREATE TABLE adoptujacy(pesel VARCHAR(11) PRIMARY KEY, imie VARCHAR(50), nazwisko VARCHAR(50), telefon VARCHAR(9), adres VARCHAR(70));
+
+// Zebranie danych o dokonanych adopcjach
+
+CREATE TABLE adopcje(id_adopcji INT PRIMARY KEY AUTO_INCREMENT, data_adopcji DATE, id_wlasciciela VARCHAR(11), id_zwierzecia INT);
+
+// Inf. o dostawcach karm oraz innego wyposażenia
+
+CREATE TABLE dostawcy(id_firmy INT PRIMARY KEY, nazwa VARCHAR(100), nr_nip VARCHAR(9), adres VARCHAR(100));
+
+// Dane działających w schronisku wolontariuszy
+
+CREATE TABLE wolontariusze(pesel VARCHAR(11) PRIMARY KEY, imie VARCHAR(50), nazwisko VARCHAR(50), nr_telefonu VARCHAR(9), wiek INT, adres VARCHAR(100)); 
+
+// Inf. o pracownikach
+
+CREATE TABLE pracownicy(id_pracownika INT PRIMARY KEY, pesel VARCHAR(11), imie VARCHAR(50), nazwisko VARCHAR(50), nr_telefonu VARCHAR(9), stanowisko VARCHAR(50) DEFAULT 'opiekun zwierzat');
+
+// Karmy na stanie schroniska
+
+CREATE TABLE karma(id_karmy INT PRIMARY KEY, producent VARCHAR(40), smak ENUM('kurczak', 'wolowina', 'dziczyzna', 'ryba'), rodzaj ENUM('sucha', 'mokra'), przeznaczenie ENUM('pies', 'kot'), waga_karmy INT, ilosc INT, id_odbiorcy INT, dostawca INT)
+
+// Archiwum zwierzat adoptowanych
+
+CREATE TABLE zwierzeta_adoptowane(id_zwierzaka INT PRIMARY KEY, rodzaj ENUM('pies', 'kot'), imie VARCHAR(50), plec ENUM('samiec', 'samica'), wiek INT, waga INT, nr_chipa VARCHAR(15), wlasciciel VARCHAR(11));
+
+// Informacje o zdrowiu zwierząt
+
+CREATE TABLE wirtualna_ksiazeczka_zdrowia(nr_ksiazeczki INT PRIMARY KEY, id_zwierzecia INT, rodzaj_szczepienia ENUM('wscieklizna, parwowiroza, nosowka, choroba Rubartha', 'panleukopenia, herpeswiroza, kaliciwirioza', 'nie zrobiono') DEFAULT 'nie zrobiono', data_szczepienia DATE, odrobaczanie ENUM('tak', 'nie'), kastracja ENUM('tak', 'nie', 'tylko sterylizacja'), lekarz INT);
+
+// Budynki, pomieszczenia schroniska
+
+CREATE TABLE elementy_infrastruktury(id_ei INT PRIMARY KEY, nazwa VARCHAR(70), blok ENUM('A', 'B', 'C'));
+
+//            Klucze obce
+
+// Połączenie książeczki z konkretnym zwierzęciem
+ALTER TABLE wirtualna_ksiazeczka_zdrowia ADD FOREIGN KEY (id_zwierzecia) REFERENCES zwierzeta(id_zwierzaka);
+
+// Połączenie pracownika z jego zwyczajowym miejscem pracy
+ALTER TABLE pracownicy ADD FOREIGN KEY (miejsce_pracy) REFERENCES elementy_infrastruktury(id_ei);
+
+// Połączenie adopcji z adoptującym
+ALTER TABLE adopcje ADD FOREIGN KEY (id_wlasciciela) REFERENCES adoptujacy(pesel);
+
+// Połączenie pracownika, którym odbierał daną karmę od dostawcy
+ALTER TABLE karma ADD FOREIGN KEY (id_odbiorcy) REFERENCES pracownicy(id_pracownika);
+
+// Przypisanie zwierzętom odpowiedzialnego za nich głównego opiekuna oraz preferowanej przez nich karmy
+ALTER TABLE zwierzeta ADD FOREIGN KEY(opiekun) REFERENCES pracownicy(id_pracownika);
+ALTER TABLE zwierzeta ADD FOREIGN KEY (id_karmy) REFERENCES karma (id_karmy);
+
+// Przypisanie karmie jej dostawcy
+ALTER TABLE karma ADD FOREIGN KEY (dostawca) REFERENCES dostawcy(id_firmy);
+
+// Przypisanie lekarza do książeczki
+ALTER TABLE wirtualna_ksiazeczka_zdrowia ADD FOREIGN KEY (lekarz) REFERENCES pracownicy(id_pracownika);
+
+// Wstawianie rekordów
+
+INSERT INTO dostawcy VALUES(1, 'Anton', '159753456', 'Krakowska 5 11-670 Warszawa');
+INSERT INTO dostawcy VALUES(2, 'Furry', '123987852', 'Kwiatowa 55 11-670 Warszawa');
+INSERT INTO dostawcy VALUES(3, 'Dingo', '125458986', 'Wilcza 5 11-670 Warszawa');
+
+INSERT INTO adoptujacy VALUES('12345685924', 'Maria', 'Kowalska', '214578963', 'Zlota 20/4 11-670 Warszawa');
+INSERT INTO adoptujacy VALUES('12345685985', 'Jan', 'Nowak', '520852147','Klonowa 5 15-670 Wroclaw');
+INSERT INTO adoptujacy VALUES('22345685924', 'Zygmunt', 'Dzik', '699855744', 'Gdanska 6 12-500 Koszalin');
+INSERT INTO adoptujacy VALUES('32345685924', 'Patrycja', 'Kot', '522441777', 'Wolska 63 14-670 Elk');
+
+INSERT INTO elementy_infrastruktury VALUES(1, 'recepcja z poczekalnia', 'A');
+INSERT INTO elementy_infrastruktury VALUES(2, 'szatnie dla pracownikow', 'A');
+INSERT INTO elementy_infrastruktury VALUES(3, 'gabinet weterynaryjny', 'C');
+INSERT INTO elementy_infrastruktury VALUES(4, 'biuro kierownika', 'A');
+INSERT INTO elementy_infrastruktury VALUES(5, 'kwarantanna', 'C');
+INSERT INTO elementy_infrastruktury VALUES(6, 'magazyn', 'B');
+INSERT INTO elementy_infrastruktury VALUES(7, 'stolowka', 'A');
+INSERT INTO elementy_infrastruktury VALUES(8, 'boksy i czesc uzytkowa zwierzat', 'B');
+INSERT INTO elementy_infrastruktury VALUES(9, 'kociarnia', 'B');
+INSERT INTO elementy_infrastruktury VALUES(10, 'pralnia', 'C');
+
+INSERT INTO pracownicy VALUES(1,'02030158742', 'Marek', 'Kopycinski', '856412967', 'opiekun zwierzat', 8);
+INSERT INTO pracownicy VALUES(2,'02301054875', 'Izabela', 'Wojcik', '879612967', 'opiekun zwierzat', 8);
+INSERT INTO pracownicy VALUES(3,'54369874125', 'Elzbieta', 'Nowak', '898632967', 'opiekun zwierzat', 8);
+INSERT INTO pracownicy VALUES(4,'69580236520', 'Szymon', 'Ulicznik', '932012967', 'opiekun zwierzat', 8);
+INSERT INTO pracownicy VALUES(5,'74012530215', 'Maria', 'Korwin', '505426967', 'opiekun zwierzat', 8);
+INSERT INTO pracownicy VALUES(6,'10230255525', 'Aleksander', 'Witko', '132412967', 'opiekun zwierzat', 8);
+INSERT INTO pracownicy VALUES(7,'10850255525', 'Genowefa', 'Ogorek', '100012967', 'kierownik', 4);
+INSERT INTO pracownicy VALUES(8,'10230299925', 'Miroslaw', 'Lokietek', '132412967', 'lekarz weterynarii', 3 );
+INSERT INTO pracownicy VALUES(9,'10234178525', 'Kinga', 'Stachurska', '132412967', 'lekarz weterynarii', 3);
+INSERT INTO pracownicy VALUES(10,'10000255525', 'Mariusz', 'Kopyto', '132412967', 'behawiorysta', 8);
+INSERT INTO pracownicy VALUES(11,'10230960525', 'Tadeusz', 'Bogacki', '132412967', 'zoopsycholog', 3);
+
+INSERT INTO dostawcy VALUES(1, 'Anton', '159753456', 'Krakowska 5 11-670 Warszawa');
+INSERT INTO dostawcy VALUES(2, 'Furry', '123987852', 'Kwiatowa 55 11-670 Warszawa');
+INSERT INTO dostawcy VALUES(3, 'Dingo', '125458986', 'Wilcza 5 11-670 Warszawa');
+
+INSERT INTO wolontariusze VALUES('854725963', 'Katarzyna', 'Wesola', '589654125', 22, 'Radom');
+INSERT INTO wolontariusze VALUES('235645871', 'Bartek', 'Nowacki', '550236958', 26, 'Torun');
+INSERT INTO wolontariusze VALUES('026532165', 'Witold', 'Majewski', '589654218', 20, 'Radom');
+INSERT INTO wolontariusze VALUES('012525963', 'Aleksandra', 'Mila', '502965412', 23, 'Radom');
+
+INSERT INTO karma VALUES(1, 'Animoda', 'kurczak', 'sucha', 'pies', 15, 4, 3, 1);
+INSERT INTO karma VALUES(2, 'WiejskaZagroda', 'dziczyzna', 'sucha', 'pies', 50, 7, 5, 2);
+INSERT INTO karma VALUES(3, 'Purina ', 'kurczak', 'mokra', 'pies', 70, 7, 6, 3, 2);
+INSERT INTO karma VALUES(4, 'DolinaNoteci ', 'ryba', 'mokra', 'kot', 50, 5, 5, 2);
+INSERT INTO karma VALUES(5, 'RoyalCanin', 'wolowina', 'sucha', 'pies', 20, 6, 1, 3);
+INSERT INTO karma VALUES(6, ' Brit ', 'kurczak', 'sucha', 'kot', 20, 4, 2, 1);
+INSERT INTO karma VALUES(7, 'DolinaNoteci ', 'ryba', 'sucha', 'pies', 35, 3, 4, 2);
+INSERT INTO karma VALUES(8, 'Sanabelle ', 'kurczak', 'mokra', 'kot', 25, 2, 6, 3);
+INSERT INTO karma VALUES(9, 'NutriLove', 'dziczyzna', 'mokra', 'pies', 10, 8, 3, 1);
+INSERT INTO karma VALUES(10, ' Trovet ', 'wolowina', 'mokra', 'pies', 15, 7, 2, 1);
+INSERT INTO karma VALUES(11, ' Brit ', 'kurczak', 'sucha', 'kot', 15, 3, 1, 2);
+INSERT INTO karma VALUES(12, 'Arion ', 'ryba', 'sucha', 'pies', 35, 2, 1, 1);
+INSERT INTO karma VALUES(13, 'DolinaNoteci ', 'kurczak', 'mokra', 'kot', 15, 5, 3, 3);
+INSERT INTO karma VALUES(14, ' Trovet ', 'wolowina', 'sucha', 'kot', 15, 3, 3, 3);
+INSERT INTO karma VALUES(15, 'NutriLove', 'kurczak', 'mokra', 'pies', 40, 2, 6, 1);
+INSERT INTO karma VALUES(16, 'RoyalCanin', 'dziczyzna', 'sucha', 'pies', 25, 3, 4, 2);
+INSERT INTO karma VALUES(17, 'WiejskaZagroda', 'ryba', 'sucha', 'pies', 50, 3, 1, 3);
+
+INSERT INTO zwierzeta VALUES(1, 'pies', 'Diablo', 'samiec', 5, 40, 'A4', '123456789876543', 3, 17);
+INSERT INTO zwierzeta VALUES(2, 'pies', 'Bajka', 'samica', 8, 24, 'C2', '123456789876548', 4, 16);
+INSERT INTO zwierzeta VALUES(3, 'pies', 'Ofis', 'samiec', 2, 54, 'B3', '123456789876566', 5, 15);
+INSERT INTO zwierzeta VALUES(4, 'pies', 'Bunia', 'samica', 4, 30, 'A4', '123456789876598', 1, 10);
+INSERT INTO zwierzeta VALUES(5, 'kot', 'Boni', 'samica', 2, 4, 'kociarnia', NULL, 4, 4 );
+INSERT INTO zwierzeta VALUES(6, 'kot', 'Kajtek', 'samiec', 4, 6, 'kociarnia', '123456789876524', 1, 6);
+INSERT INTO zwierzeta VALUES(7, 'pies', 'Benio', 'samiec', 3, 10, 'A5', '123456789878527', 6, 5);
+INSERT INTO zwierzeta VALUES(8, 'kot', 'Miska', 'samica', 4, 7, 'kociarnia', '123456789876520', 3, 14 );
+INSERT INTO zwierzeta VALUES(9, 'pies', 'Pedro', 'samiec', 2, 30, 'B2', '852456789876520', 2, 10);
+INSERT INTO zwierzeta VALUES(10, 'kot', 'Simon', 'samiec', 3, 6, 'kociarnia', '123457419876520', 2, 8);
+INSERT INTO zwierzeta VALUES(11, 'pies', 'Pepe', 'samiec', 10, 16, 'B2', '123456789886320', 5, 17);
+INSERT INTO zwierzeta VALUES(12, 'kot', 'Hugo', 'samiec', 7, 9, 'kociarnia', '183656789876520',4, 4);
+INSERT INTO zwierzeta VALUES(13, 'pies', 'Masza', 'samica', 14, 22, 'A2', '853456789876520', 2, 12);
+INSERT INTO zwierzeta VALUES(14, 'pies', 'Bodzio', 'samiec', 12, 44, 'B3', '123456776376520', 1, 9);
+INSERT INTO zwierzeta VALUES(15, 'pies', 'Rita', 'samica', 8, 15, 'C2', '123746789876520',6, 15);
+INSERT INTO zwierzeta VALUES(16, 'kot', 'Sandy', 'samica', 7, 6, 'kociarnia', '185256789876520', 3, 14);
+INSERT INTO zwierzeta VALUES(17, 'pies', 'BoJack', 'samiec', 5, 33, 'A5', '123456789876520', 5, 10);
+
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(1, 1, 'wscieklizna, parwowiroza, nosowka, choroba Rubartha', '2016-02-12', 'tak', 'tylko sterylizacja'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(2, 2, 'wscieklizna, parwowiroza, nosowka, choroba Rubartha', '2017-07-12', 'tak', 'tak'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia(nr_ksiazeczki, id_zwierzecia, odrobaczanie, kastracja) VALUES(3, 4,'tak', 'tylko sterylizacja'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(4, 6, 'panleukopenia, herpeswiroza, kaliciwirioza', '2015-12-22', 'nie', 'nie'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia(nr_ksiazeczki, id_zwierzecia, odrobaczanie, kastracja) VALUES(5, 7, 'nie', 'tylko sterylizacja'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia(nr_ksiazeczki, id_zwierzecia, odrobaczanie, kastracja) VALUES(6, 8, 'tak', 'tak'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia(nr_ksiazeczki, id_zwierzecia, odrobaczanie, kastracja) VALUES(7, 9, 'tak', 'nie'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(8, 10, 'panleukopenia, herpeswiroza, kaliciwirioza', '2017-04-01', 'tak', 'tylko sterylizacja'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(9, 12, 'panleukopenia, herpeswiroza, kaliciwirioza', '2010-07-24', 'tak', 'tak'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(10, 14, 'wscieklizna, parwowiroza, nosowka, choroba Rubartha', '2008-02-26', 'tak', 'tak'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(11, 15, 'wscieklizna, parwowiroza, nosowka, choroba Rubartha', '2011-09-12', 'nie', 'tak'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(12, 16, 'panleukopenia, herpeswiroza, kaliciwirioza', '2015-10-05', 'tak', 'tylko sterylizacja'); 
+INSERT INTO wirtualna_ksiazeczka_zdrowia VALUES(13, 17, 'wscieklizna, parwowiroza, nosowka, choroba Rubartha', '2014-06-12', 'tak', 'tak');
+
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=8 WHERE nr_ksiazeczki=1;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=8 WHERE nr_ksiazeczki=2;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=9 WHERE nr_ksiazeczki=3;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=8 WHERE nr_ksiazeczki=4;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=8 WHERE nr_ksiazeczki=5;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=9 WHERE nr_ksiazeczki=6;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=9 WHERE nr_ksiazeczki=7;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=9 WHERE nr_ksiazeczki=8;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=8 WHERE nr_ksiazeczki=9;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=8 WHERE nr_ksiazeczki=10;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=9 WHERE nr_ksiazeczki=11;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=8 WHERE nr_ksiazeczki=12;
+UPDATE wirtualna_ksiazeczka_zdrowia SET lekarz=9 WHERE nr_ksiazeczki=13;
+
+// Inserty dodane po utworzeniu triggerów
+INSERT INTO adopcje VALUES(1, '2004-12-12', '12345685924', 3);
+INSERT INTO adopcje VALUES(2, '2008-02-12','12345685985', 13);
+INSERT INTO adopcje VALUES(3, '2009-10-13','22345685924', 5);
+INSERT INTO adopcje VALUES(4, '2017-11-14','32345685924', 11);
+
+
+//                          4. Zapytania do projektu
+
+1) // Pokaż wszystkie psy w schronisku
+SELECT * FROM zwierzeta WHERE rodzaj='pies';
+
+2) // Pokaż dane wolontariuszy, których numer zaczyna się od 589 i którzy mieszkają w Radomiu
+SELECT * FROM wolontariusze WHERE nr_telefonu LIKE '589%' AND adres='Radom';
+
+2) // Pokaż zwierzęta które "zawierają się" w boksie A4, B2
+SELECT imie, waga, wiek FROM zwierzeta WHERE boks IN ('A4', 'B2');
+
+3) // Informacja jakich karm dostarcza każdy z dostawców 
+SELECT d.nazwa AS dostawca, GROUP_CONCAT(k.producent, '  ', k.smak, '  ', k.rodzaj) AS dostarczane_karmy FROM dostawcy as d INNER JOIN karma as k ON k.dostawca=d.id_firmy GROUP BY d.nazwa;
+
+3) // Pokaż ile zwierząt konkretnego rodzaju jest w schronisku oraż średnią wagę dla danego rodzaju
+SELECT rodzaj, COUNT(id_zwierzaka) AS liczbaZwierzat, AVG(waga) AS sredniaWaga FROM zwierzeta GROUP BY rodzaj;
+
+4) // Pokaż karmy(producenta i smak), których schornisko ma na stanie mniej niż 100 kg
+SELECT producent, smak, SUM(ilosc*waga_karmy) AS kg_karmy FROM karma GROUP BY producent, smak HAVING SUM(ilosc*waga_karmy)<100;
+
+5) // Wypisz, które zwierzęta są odrobaczone, a które nie
+SELECT z.imie, z.rodzaj,  IF(w.odrobaczanie='tak', "odrobaczony", "nieodrobaczony") 
+AS odrobaczanie FROM zwierzeta AS z LEFT JOIN wirtualna_ksiazeczka_zdrowia AS w ON z.id_zwierzaka=w.id_zwierzecia ORDER BY z.imie;
+
+5) // Wypisz dla karm liczbę jej konsumentów i ich imiona
+SELECT k.producent, COUNT(z.id_zwierzaka) as liczbaZjadaczy, GROUP_CONCAT(z.imie) AS imionaPieskow FROM karma as k INNER JOIN zwierzeta AS z ON z.id_karmy=k.id_karmy GROUP BY k.producent;
+
+6) // Wypisz zwierzęta razem z odpowiedzialnym za nich opiekunem
+ SELECT z.imie, z.plec, z.boks, p.id_pracownika, p.imie FROM zwierzeta as z INNER JOIN pracownicy as p ON p.id_pracownika=z.opiekun ORDER BY z.imie;
+
+7) // Pokaż jaką karmę je każde ze zwierząt
+SELECT k.producent, k.smak, z.imie FROM karma AS k INNER JOIN zwierzeta as z ON z.id_karmy=k.id_karmy ORDER BY z.imie;
+
+4) // Pokaż zaszczepione zwierzęta w latach 2015 - 2020 oraz lekarzac 
+SELECT z.imie, z.rodzaj, w.rodzaj_szczepienia, w.data_szczepienia, GROUP_CONCAT(p.imie, ' ', p.nazwisko) AS odpowiedzialny_lekarz
+FROM zwierzeta as z INNER JOIN wirtualna_ksiazeczka_zdrowia as w INNER JOIN pracownicy as p ON z.id_zwierzaka=w.id_zwierzecia 
+AND w.lekarz=p.id_pracownika WHERE w.rodzaj_szczepienia != 'nie zrobiono' AND YEAR(data_szczepienia) BETWEEN 2015 AND 2020 GROUP BY z.imie, z.rodzaj, w.rodzaj_szczepienia, w.data_szczepienia;
+
+8) // Pokaż, które zwierzę lubi dziczyznę, a które nie
+SELECT z.imie, IF(k.smak='dziczyzna', "je dziczyzne", "nie je dziczyzny") AS gust FROM zwierzeta AS z LEFT JOIN karma AS k ON k.id_karmy=z.id_karmy ORDER BY z.imie;
+
+9) // Dla kazdego opiekuna wypisz ile ma podopiecznych i ich imiona
+SELECT p.imie, p.nazwisko, COUNT(z.id_zwierzaka) AS liczbaPodopiecznych, GROUP_CONCAT(z.imie) AS imionaPieskow FROM pracownicy AS p LEFT JOIN zwierzeta AS z ON z.opiekun=p.id_pracownika WHERE z.opiekun=p.id_pracownika GROUP BY p.imie, p.nazwisko;
+
+10) Wypisz informacje(o zwierzeciu i właścicielu) o adopcjach miedzy 2000 a 2010 rokiem. 
+SELECT z.imie, z.wiek, z.rodzaj, z.plec, a.imie as imie_adoptujacego, a.nazwisko, ad.data_adopcji FROM zwierzeta_adoptowane as z INNER JOIN adoptujacy as a INNER JOIN adopcje AS ad ON z.wlasciciel=a.pesel AND a.pesel=ad.id_wlasciciela WHERE YEAR(data_adopcji) BETWEEN 2000 AND 2010 ORDER BY z.imie ASC;
+
+11) Pokaz niewykastrowane zwierzeta i lekarzy ktorzy beda musieli przeprowadzic ten zabieg
+SELECT z. imie, z.plec, z.rodzaj, p.nazwisko AS lekarz FROM zwierzeta AS z INNER JOIN wirtualna_ksiazeczka_zdrowia as w INNER JOIN pracownicy as p 
+ON z.id_zwierzaka=w.id_zwierzecia AND w.lekarz=p.id_pracownika WHERE w.kastracja='nie' AND z.wiek<=10 GROUP BY z. imie, z.plec, z.rodzaj, p.nazwisko;
+
+
+//                   5. Wyzwalacze, procedury, funkcje
+
+
+DELIMITER $$
+CREATE PROCEDURE liczba_psow_w_schronisku(OUT liczba_Pieskow INT, OUT sredniWiek INT) 
+BEGIN
+SELECT COUNT(id_zwierzaka) INTO liczba_Pieskow FROM zwierzeta WHERE rodzaj='pies';
+SELECT AVG(wiek) INTO sredniWiek FROM zwierzeta WHERE rodzaj='pies';
+END$$
+
+DELIMITER $$
+CREATE PROCEDURE liczba_kotow_w_schronisku(OUT liczba_Kotkow INT, OUT najstarszy_kot INT) 
+BEGIN
+SELECT COUNT(id_zwierzaka) INTO liczba_Kotkow FROM zwierzeta WHERE boks='kociarnia';
+SELECT MAX(wiek) INTO najstarszy_kot FROM zwierzeta WHERE rodzaj='kot';
+END$$
+
+DELIMITER $$
+CREATE PROCEDURE choroba(IN id_zwierzaka_var INT)
+BEGIN
+UPDATE zwierzeta SET waga=0.9*waga WHERE id_zwierzaka=id_zwierzaka_var;
+END$$
+
+DELIMITER $$
+CREATE TRIGGER adopcja AFTER INSERT ON adopcje
+FOR EACH ROW
+BEGIN 
+DELETE FROM zwierzeta WHERE new.id_zwierzecia=id_zwierzaka;
+END$$
+
+DELIMITER $$
+CREATE TRIGGER po_adopcji AFTER DELETE ON zwierzeta
+FOR EACH ROW
+BEGIN
+DECLARE nowy_opiekun VARCHAR(11);
+SELECT id_wlasciciela INTO nowy_opiekun FROM adopcje WHERE id_zwierzecia=old.id_zwierzaka;
+INSERT INTO zwierzeta_adoptowane VALUES(old.id_zwierzaka, old.rodzaj, old.imie, old.plec, old.wiek, old.waga, old.nr_chipa, nowy_opiekun);
+END$$
+
+DELIMITER $$
+CREATE FUNCTION ilosc_karmy_po_tygodniu(karma INT, liczba_zwierzat INT) 
+RETURNS INT
+BEGIN
+DECLARE karma_pt INT;
+    SET karma_pt = karma-(liczba_zwierzat*3);
+    RETURN karma_pt;
+END $$
+
+
+
+
+
